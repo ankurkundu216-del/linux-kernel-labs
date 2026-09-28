@@ -82,7 +82,7 @@ sudo rmmod char_dev
 make clean
 ```
 
-###⚠️ A Quick Warning
+### ⚠️ A Quick Warning
 
 Because this code runs in Ring 0 (the deepest privilege level of your computer), a bad pointer or an infinite loop won't just crash your program—it will freeze your entire operating system. Always test kernel code inside a Virtual Machine (like VirtualBox) first!
 
