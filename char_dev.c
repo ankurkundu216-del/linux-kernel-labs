@@ -1,3 +1,30 @@
+/*
+ * Core Concepts: How User Space Talk to Kernel Space
+ *
+ * Before writing the code, here are the three critical mechanisms that allow a user-space application (like cat or echo) to communicate with a kernel module:
+
+ * 1. User Space vs. Kernel Space Memory Isolation
+ * User applications (Ring 3) and the Linux kernel (Ring 0) live in completely isolated virtual address spaces. 
+ * The kernel cannot directly dereference a pointer passed from user space. 
+ * Doing so could crash the system or create security vulnerabilities. We must use safe bridge functions:
+
+ * copy_to_user(dest, src, size): Safely moves data from kernel memory to user memory.
+
+ * copy_from_user(dest, src, size): Safely moves data from user memory into kernel memory.
+
+ * 2. The file_operations Structure
+ * In Unix-like systems, "everything is a file". 
+ * When a user runs cat /dev/vbox_char, the Linux OS triggers standard open(), read(), and close() system calls. 
+ * The file_operations structure is a list of function pointers where we tell the kernel: "When someone calls read() on our device file, execute our custom dev_read() C function."
+
+ * Major Numbers & Device Class
+
+ * Major Number: A unique integer assigned by the kernel that identifies which driver controls a specific device file.
+
+ * Device Class (/dev/ node): Using class_create() and device_create(), the kernel automatically populates a node at /dev/vbox_char so you don't have to manually create raw nodes using mknod.
+ */
+
+
 #include<linux/module.h>     // Core header required for all kernel modules
 #include<linux/kernel.h>     // Required for kernel logging (printk) and log levels (KERN_INFO)
 #include<linux/fs.h>         // Required for the Virtual File System (VFS) and file_operations struct
