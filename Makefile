@@ -1,9 +1,10 @@
-# This tells Kbuild to compile hello.o into a module (hello.ko)
+obj-m += hello.o hello_param.o char_dev.o virtual_gpio_chip.o
 
-obj-m += hello.o hello_param.o
+KDIR ?= /lib/modules/$(shell uname -r)/build
+PWD  := $(shell pwd)
 
 all:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+	$(MAKE) -C $(KDIR) M=$(PWD) modules
 
 clean:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
+	$(MAKE) -C $(KDIR) M=$(PWD) clean
