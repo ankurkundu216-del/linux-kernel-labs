@@ -33,6 +33,14 @@ In Linux, there is a famous rule: *"Everything is a file."* Your keyboard, your 
 * **User/Kernel Bridge:** When a normal user tries to "read" or "write" text to this fake file from their terminal, the kernel intercepts that action. The code uses `copy_from_user` to safely pull text from the dining area into the kitchen, and `copy_to_user` to send data back out. 
 * **Why it matters:** This is exactly how your operating system talks to real physical hardware!
 
+### **4. `virtual_gpio_chip.c` — Mocking Real Hardware**
+
+What if we want to write a driver for hardware that doesn't actually exist on our machine?
+
+* **The Concept:** This code uses the Linux GPIO subsystem (`gpiolib`) to create a virtual 8-pin GPIO controller. It registers a `gpio_chip` structure with the kernel.
+* **User/Kernel Bridge:** Instead of a raw character device, this module interacts with modern user-space GPIO tools (like `libgpiod`). When you run commands like `gpioset` in the dining area, the kernel framework intercepts it and triggers our custom `.set` callback function inside the kitchen.
+* **Why it matters:** This demonstrates how Linux abstracts hardware. The operating system and user-space tools treat our software-defined virtual pins exactly the same as physical pins on a real motherboard!
+
 ---
 
 ## 🛠️ How to Build and Run the Code
@@ -80,6 +88,19 @@ sudo cat /dev/vbox_char
 ```bash
 sudo rmmod char_dev
 make clean
+```
+
+5. Test the Virtual GPIO Chip (Requires libgpiod):
+
+```bash
+# Find the dynamically assigned virtual chip
+sudo gpiodetect
+
+# Set Virtual Pin 0 to HIGH for 2 seconds
+sudo gpioset -c gpiochip0 -p 2s 0=1
+
+# Check the kernel's secret logbook for the driver callback
+sudo dmesg | tail -n 5
 ```
 
 ### ⚠️ A Quick Warning
